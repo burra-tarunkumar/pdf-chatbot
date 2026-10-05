@@ -1,0 +1,25 @@
+# Virtual environment
+.venv/
+
+# Environment variables and secrets
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local vector database
+chroma_db/
+
+# Local PDFs
+data/pdfs/*
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
