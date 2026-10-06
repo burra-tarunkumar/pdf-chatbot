@@ -1,13 +1,9 @@
 import logging
 
-
-
 from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel,Field
 
-from app.embeddings import create_embeddings
-from app.vectorstore import search_documents
-from app.rag import generate_answer
+from app.service import ask_question
 
 logger = logging.getLogger(__name__)
 
@@ -33,44 +29,12 @@ def root():
 
 
 @app.post("/ask",response_model=AnswerResponse)
-def ask_question(request: QuestionRequest):
+def ask_question_endpoint(request: QuestionRequest):
 
     try:
-        query_embedding = create_embeddings([request.question])[0]
+        result = ask_question(request.question)
 
-        results = search_documents(query_embedding, top_k=3)
-
-        retrieved_documents = results["documents"][0]
-        retrieved_metadatas = results["metadatas"][0]
-
-        context_parts = []
-
-        for document, metadata in zip(
-            retrieved_documents,
-            retrieved_metadatas
-        ):
-            page_number = metadata["page"] + 1
-
-            context_parts.append(
-                f"[Page: {page_number}]\n{document}"
-            )
-
-        context = "\n\n".join(context_parts)
-
-        answer = generate_answer(
-            request.question,
-            context
-        )
-
-        pages = sorted(
-            set(metadata["page"] + 1 for metadata in retrieved_metadatas)
-        )
-
-        return {
-            "question": request.question,
-            "answer": answer,
-            "pages": pages
-        }
+        return result
     except Exception:
         logger.exception("Error while processing question")
         raise HTTPException(
