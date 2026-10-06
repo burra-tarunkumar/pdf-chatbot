@@ -1,3 +1,7 @@
+import logging
+
+
+
 from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel,Field
 
@@ -5,6 +9,7 @@ from app.embeddings import create_embeddings
 from app.vectorstore import search_documents
 from app.rag import generate_answer
 
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -67,6 +72,7 @@ def ask_question(request: QuestionRequest):
             "pages": pages
         }
     except Exception:
+        logger.exception("Error while processing question")
         raise HTTPException(
             status_code=500,
             detail="An error occurred while processing the question"
